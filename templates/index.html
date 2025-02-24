@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Album</title>
+</head>
+<body>
+    <h1>Search for an Album</h1>
+    <form id="searchForm">
+        <input type="text" name="album_title" placeholder="Enter album title" required>
+        <button type="submit">Search</button>
+    </form>
+    <h3 id="albumTitle"></h3>
+    <div id="results"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        var form = document.getElementById('searchForm');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            var formData = new FormData(form);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/search', true);
+
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var data = JSON.parse(xhr.responseText);
+                    var albumTitle = data.album_name;
+
+                    document.getElementById('albumTitle').innerHTML = `Showing results for: "${albumTitle}"`;
+
+                    var results = '<ul>';
+
+                    data.tracks.forEach(track => {
+                        results += '<li>' + track + '</li>';
+                    });
+
+                    results += '</ul>';
+                    document.getElementById('results').innerHTML = results;
+                } else {
+                    document.getElementById('albumTitle').innerHTML = '';
+                    document.getElementById('results').innerHTML = '<p style="color: red;">No albums found matching that title.</p>';
+                }
+            };
+
+            xhr.onerror = () => {
+                document.getElementById('albumTitle').innerHTML = '';
+                document.getElementById('results').innerHTML = '<p style="color: red;">Error occurred during the search.</p>';
+            };
+
+            xhr.send(formData);
+        });
+    });
+    </script>
+</body>
+</html>
